@@ -1,0 +1,23 @@
+name: iot_dashboard
+description: "Flutter IoT dashboard for ESP32/STM32 sensor monitoring with live charts, device control and alerts."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  fl_chart: ^0.71.0
+  mqtt_client: ^10.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
