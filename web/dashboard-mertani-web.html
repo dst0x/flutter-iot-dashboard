@@ -131,20 +131,24 @@
       .ref-sec{margin:32px 0 10px}
       .ref-sec .sec-ic{width:44px;height:44px;border-radius:13px}
       .ref-sec h2{font-size:21px}
-      .stage{position:relative;height:344px;margin:4px -18px 10px;overflow:hidden}
-      .stage-card{position:absolute;top:10px;left:50%;width:63%;height:316px;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:20px;box-shadow:0 2px 6px rgba(21,36,47,.05),0 14px 28px -18px rgba(21,36,47,.18);padding:24px 12px 20px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .38s ease,box-shadow .38s ease}
-      .stage-card.pos-center{transform:translateX(-50%);z-index:3;box-shadow:0 3px 6px rgba(21,36,47,.05),0 30px 48px -20px rgba(21,36,47,.30)}
-      .stage-card.pos-left{transform:translateX(-154%);z-index:1}
-      .stage-card.pos-right{transform:translateX(54%);z-index:1}
-      .st-name{font-weight:700;font-size:16.5px;color:var(--ink);white-space:nowrap}
+      .stage{position:relative;display:flex;gap:16px;margin:4px -18px 2px;padding:16px 0 30px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;cursor:grab}
+      .stage::-webkit-scrollbar{display:none}
+      .stage.dragging{scroll-snap-type:none;cursor:grabbing}
+      .stage-card{flex:0 0 min(80%,540px);height:372px;scroll-snap-align:center;scroll-snap-stop:always;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:20px;box-shadow:0 2px 6px rgba(21,36,47,.05),0 14px 28px -18px rgba(21,36,47,.18);padding:28px 16px 24px;display:flex;flex-direction:column;align-items:center;cursor:grab;opacity:.7;transform:scale(.94);transition:transform .3s ease,box-shadow .3s ease,opacity .3s ease}
+      .stage-card:first-child{margin-left:max(10%,calc(50% - 270px))}
+      .stage-card:last-child{margin-right:max(10%,calc(50% - 270px))}
+      .stage-card.is-center{opacity:1;transform:scale(1);box-shadow:0 3px 6px rgba(21,36,47,.05),0 30px 48px -20px rgba(21,36,47,.30)}
+      .stage-dots{display:flex;gap:2px;justify-content:center;margin:0 0 8px}
+      .stage-dots button{width:28px;height:28px;min-height:28px;display:grid;place-items:center;background:none;padding:0}
+      .stage-dots button::after{content:"";width:8px;height:8px;border-radius:99px;background:var(--line-strong);transition:width .25s ease,background .25s ease}
+      .stage-dots button.on::after{width:24px;background:var(--accent)}
+      .st-name{font-weight:700;font-size:18px;color:var(--ink);white-space:nowrap}
       .st-mid{flex:1;width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 2px}
-      .st-arrow{width:41px;height:41px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);display:grid;place-items:center;color:var(--ink-2);flex:none}
-      .st-arrow:hover{border-color:var(--muted);color:var(--ink)}
-      .st-value{display:flex;flex-direction:column;align-items:center;gap:11px}
-      .st-dash{width:56px;height:6px;border-radius:3px;background:#D63A2F}
-      .st-unit{font-size:21px;font-weight:800;color:#C8501B;letter-spacing:.01em}
-      .st-status{font-size:14.5px;font-weight:600;color:#BE5A52}
-      .st-code{font-size:15px;font-weight:700;color:#B85C1E;margin-top:7px}
+      .st-value{display:flex;flex-direction:column;align-items:center;gap:12px}
+      .st-dash{width:64px;height:6px;border-radius:3px;background:#D63A2F}
+      .st-unit{font-size:24px;font-weight:800;color:#C8501B;letter-spacing:.01em}
+      .st-status{font-size:15px;font-weight:600;color:#BE5A52}
+      .st-code{font-size:15.5px;font-weight:700;color:#B85C1E;margin-top:7px}
       .ref-map{border-radius:20px;margin-top:26px}
       .map-head .eyebrow{color:var(--accent)}
       .map-frame.ref-frame{min-height:520px;overflow:hidden}
@@ -386,7 +390,8 @@
               <div class="sec-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12L16 12h5"/></svg></div>
               <div><h2>Live readings</h2><p>Browse 1 device, then open a reading for details.</p></div>
             </div>
-            <div class="stage" id="stage" aria-label="Live readings, 1 device"></div>
+            <div class="stage" id="stage" aria-label="Live readings, 1 device — geser untuk melihat reading lain"></div>
+            <div class="stage-dots" id="stageDots" role="group" aria-label="Posisi live reading"></div>
 
             <div class="card map-card ref-map">
               <div class="map-head">
@@ -743,41 +748,104 @@
         {name:"Air Humidity", unit:"%RH", code:"RSC-hum"},
         {name:"Air Pressure", unit:"hPa", code:"RSC-pres"}
       ];
-      var stageCenter=1;
+      var stageCenter=1, suppressStageClick=false;
+      function stageCards(){ return document.querySelectorAll("#stage .stage-card"); }
+      function markStageCenter(){
+        var cards=stageCards();
+        for(var i=0;i<cards.length;i++){
+          var on=i===stageCenter;
+          cards[i].classList.toggle("is-center",on);
+          cards[i].setAttribute("aria-hidden",on?"false":"true");
+          cards[i].setAttribute("tabindex",on?"0":"-1");
+        }
+        var dots=document.querySelectorAll("#stageDots button");
+        for(var j=0;j<dots.length;j++) dots[j].classList.toggle("on",j===stageCenter);
+      }
+      function centerStageCard(i,smooth){
+        var st=document.getElementById("stage");
+        var card=stageCards()[i]; if(!card) return;
+        var reduce=window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        st.scrollTo({left:card.offsetLeft-(st.clientWidth-card.clientWidth)/2,behavior:(smooth&&!reduce)?"smooth":"auto"});
+      }
       function renderStage(){
         var st=document.getElementById("stage");
         st.innerHTML=READINGS.map(function(r,i){
-          var rel=(i-stageCenter+READINGS.length)%READINGS.length;
-          var pos=rel===0?"pos-center":(rel===1?"pos-right":"pos-left");
           var value='<div class="st-value"><span class="st-dash" aria-hidden="true"></span><span class="st-unit">'+esc(r.unit)+"</span></div>";
-          if(rel===0){
-            return '<div class="stage-card '+pos+'" data-stage="'+i+'" role="button" tabindex="0" aria-label="'+esc(r.name)+', no reading">'
-              +'<div class="st-name">'+esc(r.name)+"</div>"
-              +'<div class="st-mid"><button class="st-arrow" data-arrow="-1" aria-label="Reading sebelumnya"><svg class="ic sm" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg></button>'
-              + value
-              +'<button class="st-arrow" data-arrow="1" aria-label="Reading berikutnya"><svg class="ic sm" viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></svg></button></div>'
-              +'<div class="st-status">No reading</div><div class="st-code">'+esc(r.code)+"</div></div>";
-          }
-          return '<div class="stage-card '+pos+'" data-stage="'+i+'" aria-hidden="true">'
+          return '<div class="stage-card" data-stage="'+i+'" role="button" tabindex="-1" aria-label="'+esc(r.name)+', no reading">'
             +'<div class="st-name">'+esc(r.name)+"</div>"
             +'<div class="st-mid solo">'+value+"</div>"
             +'<div class="st-status">No reading</div><div class="st-code">'+esc(r.code)+"</div></div>";
         }).join("");
+        document.getElementById("stageDots").innerHTML=READINGS.map(function(r,i){
+          return '<button data-dot="'+i+'" aria-label="Ke reading '+esc(r.name)+'"></button>';
+        }).join("");
+        markStageCenter();
+        requestAnimationFrame(function(){ centerStageCard(stageCenter,false); });
       }
+      var stageTick=false;
+      document.getElementById("stage").addEventListener("scroll",function(){
+        if(stageTick) return; stageTick=true;
+        var st=this;
+        requestAnimationFrame(function(){
+          stageTick=false;
+          var mid=st.scrollLeft+st.clientWidth/2, best=stageCenter, bestD=Infinity;
+          var cards=stageCards();
+          for(var i=0;i<cards.length;i++){
+            var d=Math.abs(cards[i].offsetLeft+cards[i].clientWidth/2-mid);
+            if(d<bestD){ bestD=d; best=i; }
+          }
+          if(best!==stageCenter){ stageCenter=best; markStageCenter(); }
+        });
+      },{passive:true});
       document.getElementById("stage").addEventListener("click",function(e){
-        var ar=e.target.closest("[data-arrow]");
+        if(suppressStageClick){ suppressStageClick=false; return; }
         var card=e.target.closest("[data-stage]");
-        if(ar){
-          e.stopPropagation();
-          stageCenter=(stageCenter+parseInt(ar.getAttribute("data-arrow"),10)+READINGS.length)%READINGS.length;
-          renderStage(); return;
-        }
-        if(card){
-          var i=parseInt(card.getAttribute("data-stage"),10);
-          if(i!==stageCenter){ stageCenter=i; renderStage(); }
+        if(!card) return;
+        var i=parseInt(card.getAttribute("data-stage"),10);
+        if(i!==stageCenter){ stageCenter=i; markStageCenter(); centerStageCard(i,true); }
+        else toast("No reading yet for "+READINGS[i].name+" ("+READINGS[i].code+")");
+      });
+      document.getElementById("stageDots").addEventListener("click",function(e){
+        var d=e.target.closest("[data-dot]"); if(!d) return;
+        var i=parseInt(d.getAttribute("data-dot"),10);
+        stageCenter=i; markStageCenter(); centerStageCard(i,true);
+      });
+      document.getElementById("stage").addEventListener("keydown",function(e){
+        if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+          var n=(stageCenter+(e.key==="ArrowRight"?1:-1)+READINGS.length)%READINGS.length;
+          stageCenter=n; markStageCenter(); centerStageCard(n,true);
+          var c=stageCards()[n]; if(c) c.focus({preventScroll:true});
+          e.preventDefault();
+        } else if((e.key==="Enter"||e.key===" ") && e.target.matches && e.target.matches("[data-stage]")){
+          e.preventDefault();
+          var i=parseInt(e.target.getAttribute("data-stage"),10);
+          if(i!==stageCenter){ stageCenter=i; markStageCenter(); centerStageCard(i,true); }
           else toast("No reading yet for "+READINGS[i].name+" ("+READINGS[i].code+")");
         }
       });
+      /* drag dengan mouse: geser kartu tanpa klik panah */
+      (function(){
+        var st=document.getElementById("stage"), drag=null;
+        st.addEventListener("pointerdown",function(e){
+          if(e.pointerType!=="mouse") return;
+          drag={x:e.clientX,sl:st.scrollLeft,moved:false};
+          st.classList.add("dragging");
+        });
+        st.addEventListener("pointermove",function(e){
+          if(!drag) return;
+          var dx=e.clientX-drag.x;
+          if(Math.abs(dx)>6) drag.moved=true;
+          st.scrollLeft=drag.sl-dx;
+        });
+        function endDrag(){
+          if(!drag) return;
+          if(drag.moved){ suppressStageClick=true; setTimeout(function(){ suppressStageClick=false; },80); }
+          drag=null; st.classList.remove("dragging");
+        }
+        st.addEventListener("pointerup",endDrag);
+        st.addEventListener("pointercancel",endDrag);
+        st.addEventListener("pointerleave",endDrag);
+      })();
       /* ---------- detail perangkat ---------- */
       function renderDetail(deviceId, sensorKey){
         var d=null; for(var i=0;i<DEVICES.length;i++) if(DEVICES[i].id===deviceId) d=DEVICES[i];
