@@ -131,13 +131,14 @@
       .ref-sec{margin:32px 0 10px}
       .ref-sec .sec-ic{width:44px;height:44px;border-radius:13px}
       .ref-sec h2{font-size:21px}
-      .stage{position:relative;display:flex;gap:16px;margin:4px -18px 2px;padding:16px 0 30px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;cursor:grab}
+      .stage{position:relative;display:flex;gap:0;margin:4px -18px 2px;padding:16px 0 30px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;cursor:grab}
       .stage::-webkit-scrollbar{display:none}
       .stage.dragging{scroll-snap-type:none;cursor:grabbing}
-      .stage-card{flex:0 0 min(80%,540px);height:372px;scroll-snap-align:center;scroll-snap-stop:always;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:20px;box-shadow:0 2px 6px rgba(21,36,47,.05),0 14px 28px -18px rgba(21,36,47,.18);padding:28px 16px 24px;display:flex;flex-direction:column;align-items:center;cursor:grab;opacity:.7;transform:scale(.94);transition:transform .3s ease,box-shadow .3s ease,opacity .3s ease}
+      .stage-card{flex:0 0 min(80%,540px);height:372px;scroll-snap-align:center;scroll-snap-stop:always;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:20px;box-shadow:0 2px 6px rgba(21,36,47,.05),0 14px 28px -18px rgba(21,36,47,.18);padding:28px 16px 24px;display:flex;flex-direction:column;align-items:center;cursor:grab;opacity:.68;transform:scale(.92) translateY(10px);position:relative;z-index:1;transition:transform .3s ease,box-shadow .3s ease,opacity .3s ease}
+      .stage-card + .stage-card{margin-left:-56px}
       .stage-card:first-child{margin-left:max(10%,calc(50% - 270px))}
       .stage-card:last-child{margin-right:max(10%,calc(50% - 270px))}
-      .stage-card.is-center{opacity:1;transform:scale(1);box-shadow:0 3px 6px rgba(21,36,47,.05),0 30px 48px -20px rgba(21,36,47,.30)}
+      .stage-card.is-center{opacity:1;transform:scale(1) translateY(0);z-index:6;box-shadow:0 3px 6px rgba(21,36,47,.05),0 30px 48px -20px rgba(21,36,47,.30)}
       .stage-dots{display:flex;gap:2px;justify-content:center;margin:0 0 8px}
       .stage-dots button{width:28px;height:28px;min-height:28px;display:grid;place-items:center;background:none;padding:0}
       .stage-dots button::after{content:"";width:8px;height:8px;border-radius:99px;background:var(--line-strong);transition:width .25s ease,background .25s ease}
@@ -303,6 +304,42 @@
       .sensor-card .s-range{font-size:12.5px;color:var(--muted)}
       .sensor-card .spark{margin-top:8px;width:100%;height:34px}
 
+      /* ---------- halaman parameter (live reading detail) ---------- */
+      .param-card{padding:20px}
+      .param-devrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+      .param-namebox{border:1px solid var(--line-strong);border-radius:10px;padding:9px 16px;font-weight:600;background:var(--surface);font-size:15px}
+      .param-fs{margin-left:auto;width:42px;height:42px;display:grid;place-items:center;border-radius:10px;color:var(--ink-2)}
+      .param-fs:hover{background:var(--surface-2);color:var(--ink)}
+      .param-id{color:var(--muted);margin:9px 0 18px;font-size:14.5px}
+      .param-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:stretch}
+      .param-select{flex:1;min-width:190px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);min-height:47px;font-size:14.5px}
+      .param-select:disabled{opacity:.55}
+      .realtime-box{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:10px;padding:0 15px;background:var(--surface);font-weight:600;font-size:14.5px;min-height:47px;cursor:pointer}
+      .realtime-box input{width:18px;height:18px;accent-color:#1E8FE8;flex:none}
+      .range-field{flex:1;display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:11px 14px;background:var(--surface);font-size:14px;color:var(--ink-2);min-height:47px}
+      .range-field svg{stroke:var(--muted);flex:none}
+      .range-select{padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);min-height:47px;font-size:14.5px;font-weight:600}
+      .dl-square{margin-left:auto;width:47px;height:47px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:grid;place-items:center;color:var(--ink-2);flex:none}
+      .dl-square:hover{border-color:var(--line-strong);color:var(--ink)}
+      .param-chart-tools{display:flex;align-items:center;gap:9px;margin:8px 0 2px}
+      .param-gear{width:34px;height:34px;display:grid;place-items:center;border-radius:8px;color:var(--muted)}
+      .param-gear:hover{background:var(--surface-2);color:var(--ink)}
+      .param-sensor-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:5px 11px;font-size:13.5px;font-weight:600}
+      .param-sensor-tag .sq{width:13px;height:13px;border-radius:3.5px;background:#1E8FE8;flex:none}
+      .param-chart{width:100%;height:auto;display:block}
+      .param-chart text{font-family:"Plus Jakarta Sans",sans-serif;fill:var(--muted)}
+      .param-legend{display:flex;justify-content:center;margin:2px 0 4px}
+      .param-legend label{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;cursor:pointer}
+      .param-legend input{width:17px;height:17px;accent-color:#1E8FE8}
+      .monitor-card{border:1px solid var(--line);border-radius:14px;margin-top:18px;overflow:hidden}
+      .monitor-card h3{margin:0;padding:15px 18px 11px;font-size:16.5px;font-weight:800}
+      .monitor-wrap{max-height:330px;overflow-y:auto;border-top:1px solid var(--line)}
+      .monitor-table{width:100%;border-collapse:collapse;font-size:14.5px}
+      .monitor-table th{position:sticky;top:0;background:var(--surface-2);text-align:left;padding:11px 18px;font-size:13.5px;font-weight:700;color:var(--ink-2);z-index:1}
+      .monitor-table td{padding:11px 18px;border-top:1px solid var(--line);color:var(--ink-2)}
+      .monitor-table td.val{color:var(--ink);font-weight:600}
+      .monitor-table tr:first-child td{border-top:0}
+
       /* forms / settings */
       .form-card{padding:20px;max-width:680px}
       .field{margin-bottom:16px}
@@ -465,6 +502,12 @@
           <section class="view" id="view-detail">
             <button class="backbtn" data-nav="perangkat"><svg class="ic sm" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>Kembali ke Perangkat</button>
             <div id="detailRoot"></div>
+          </section>
+
+          <!-- ============ DETAIL PARAMETER (dari Live readings) ============ -->
+          <section class="view" id="view-param">
+            <button class="backbtn" data-nav="beranda"><svg class="ic sm" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>Kembali ke Overview</button>
+            <div id="paramRoot"></div>
           </section>
 
           <!-- ============ UNDUH ============ -->
@@ -683,7 +726,7 @@
         return out;
       }
       /* ---------- navigasi ---------- */
-      var CRUMBS={beranda:"Overview",perangkat:"Perangkat",detail:"Detail Perangkat",unduh:"Unduh",pengaturan:"Pengaturan"};
+      var CRUMBS={beranda:"Overview",perangkat:"Perangkat",detail:"Detail Perangkat",param:"Detail Parameter",unduh:"Unduh",pengaturan:"Pengaturan"};
       var currentView="beranda", currentDevice="kipi", focusSensor="ph";
       function go(view,deviceId,sensorKey){
         if(deviceId) currentDevice=deviceId;
@@ -691,7 +734,7 @@
         currentView=view;
         var views=document.querySelectorAll(".view");
         for(var i=0;i<views.length;i++) views[i].classList.toggle("active", views[i].id==="view-"+view);
-        var navKey=(view==="detail")?"perangkat":view;
+        var navKey=(view==="detail")?"perangkat":(view==="param")?"beranda":view;
         var links=document.querySelectorAll("[data-nav]");
         for(var j=0;j<links.length;j++){
           if(links[j].classList.contains("navlink")||links[j].closest(".bottomnav")) links[j].classList.toggle("on", links[j].getAttribute("data-nav")===navKey);
@@ -701,6 +744,7 @@
         document.getElementById("bellBtn").setAttribute("aria-expanded","false");
         setDrawer(false);
         if(view==="detail") renderDetail(currentDevice, focusSensor);
+        if(view==="param") renderParam();
         window.scrollTo({top:0,behavior:"auto"});
       }
       document.addEventListener("click",function(e){
@@ -744,9 +788,9 @@
       });
       /* ---------- stage Live readings (fokus tengah, persis referensi) ---------- */
       var READINGS=[
-        {name:"Air Temperature", unit:"°C", code:"RSC-temp"},
-        {name:"Air Humidity", unit:"%RH", code:"RSC-hum"},
-        {name:"Air Pressure", unit:"hPa", code:"RSC-pres"}
+        {name:"Air Temperature", unit:"°C", code:"RSC-temp", pkey:"temp"},
+        {name:"Air Humidity", unit:"%RH", code:"RSC-hum", pkey:"hum"},
+        {name:"Air Pressure", unit:"hPa", code:"RSC-pres", pkey:"pres"}
       ];
       var stageCenter=1, suppressStageClick=false;
       function stageCards(){ return document.querySelectorAll("#stage .stage-card"); }
@@ -803,7 +847,7 @@
         if(!card) return;
         var i=parseInt(card.getAttribute("data-stage"),10);
         if(i!==stageCenter){ stageCenter=i; markStageCenter(); centerStageCard(i,true); }
-        else toast("No reading yet for "+READINGS[i].name+" ("+READINGS[i].code+")");
+        else openParam(READINGS[i].pkey);
       });
       document.getElementById("stageDots").addEventListener("click",function(e){
         var d=e.target.closest("[data-dot]"); if(!d) return;
@@ -820,7 +864,7 @@
           e.preventDefault();
           var i=parseInt(e.target.getAttribute("data-stage"),10);
           if(i!==stageCenter){ stageCenter=i; markStageCenter(); centerStageCard(i,true); }
-          else toast("No reading yet for "+READINGS[i].name+" ("+READINGS[i].code+")");
+          else openParam(READINGS[i].pkey);
         }
       });
       /* drag dengan mouse: geser kartu tanpa klik panah */
@@ -877,6 +921,121 @@
       document.getElementById("detailRoot").addEventListener("click",function(e){
         var ch=e.target.closest("[data-chip]");
         if(ch){ focusSensor=ch.getAttribute("data-chip"); renderDetail("kipi",focusSensor); }
+      });
+      /* ---------- halaman parameter: grafik + tabel pemantauan ---------- */
+      var PARAM_TIMES=[];
+      (function(){ for(var m=0;m<=18*60+30;m+=30){ var hh=Math.floor(m/60), mm=m%60; PARAM_TIMES.push((hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm); } })();
+      var PARAM_SENSORS=[
+        {key:"temp", name:"Air Temperature", unit:"°C", code:"RSC-temp", dec:1, series:[26.8,26.6,26.4,26.3,26.2,26.1,26.0,25.9,25.9,26.0,26.1,26.3,26.6,27.0,27.5,28.1,28.7,29.2,29.7,30.1,30.5,30.8,31.1,31.3,31.5,31.6,31.7,31.5,31.3,31.0,30.6,30.2,29.8,29.4,29.0,28.6,28.2,27.9]},
+        {key:"hum", name:"Air Humidity", unit:"%RH", code:"RSC-hum", dec:2, series:[93.0,92.8,92.6,92.9,93.4,94.0,94.2,93.8,93.5,94.4,94.1,92.0,89.5,93.0,92.5,88.0,82.0,76.5,73.0,71.5,66.0,58.5,56.2,57.0,72.0,88.0,95.8,94.0,82.0,70.5,67.0,65.2,66.5,67.97,77.2,83.4,86.1,87.1]},
+        {key:"pres", name:"Air Pressure", unit:"hPa", code:"RSC-pres", dec:1, series:[1011.4,1011.6,1011.8,1012.0,1012.1,1012.3,1012.2,1012.0,1011.7,1011.4,1011.0,1010.6,1010.2,1009.9,1009.7,1009.6,1009.8,1010.1,1010.5,1010.9,1011.3,1011.6,1011.9,1012.1,1012.0,1011.8,1011.5,1011.2,1010.9,1010.7,1010.8,1011.1,1011.4,1011.7,1012.0,1012.2,1012.4,1012.5]}
+      ];
+      var currentParam="hum", paramRange="semua", paramRealtime=false, paramShowLine=true, paramGrid=true;
+      function paramSensor(key){ for(var i=0;i<PARAM_SENSORS.length;i++) if(PARAM_SENSORS[i].key===key) return PARAM_SENSORS[i]; return PARAM_SENSORS[1]; }
+      function openParam(pkey){ currentParam=pkey; paramRange="semua"; paramRealtime=false; paramShowLine=true; go("param"); }
+      function paramFmt(v,dec){ return String(parseFloat(v.toFixed(dec))); }
+      function paramPoints(s){
+        var pts=s.series.map(function(v,i){ return {t:PARAM_TIMES[i], min:i*30, v:v}; });
+        if(paramRealtime || paramRange==="semua") return pts;
+        var hrs=parseInt(paramRange,10), lastMin=pts[pts.length-1].min;
+        return pts.filter(function(p){ return p.min>=lastMin-hrs*60; });
+      }
+      function smoothPath(xy){
+        if(xy.length<2) return "";
+        if(xy.length===2) return "M"+xy[0].x.toFixed(1)+","+xy[0].y.toFixed(1)+" L"+xy[1].x.toFixed(1)+","+xy[1].y.toFixed(1);
+        var d="M"+xy[0].x.toFixed(1)+","+xy[0].y.toFixed(1);
+        for(var i=0;i<xy.length-1;i++){
+          var p0=xy[Math.max(0,i-1)], p1=xy[i], p2=xy[i+1], p3=xy[Math.min(xy.length-1,i+2)];
+          var c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6;
+          var c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+          d+="C"+c1x.toFixed(1)+","+c1y.toFixed(1)+" "+c2x.toFixed(1)+","+c2y.toFixed(1)+" "+p2.x.toFixed(1)+","+p2.y.toFixed(1);
+        }
+        return d;
+      }
+      function paramChart(s, pts){
+        var W=720,H=308,padL=54,padR=16,padT=14,padB=72;
+        var min=Infinity,max=-Infinity,i,v;
+        for(i=0;i<pts.length;i++){ if(pts[i].v<min)min=pts[i].v; if(pts[i].v>max)max=pts[i].v; }
+        var span=(max-min)||1, rawLo=min-span*0.3, rawHi=max+span*0.3;
+        var step0=(rawHi-rawLo)/5, mag=Math.pow(10,Math.floor(Math.log(step0)/Math.LN10)), norm=step0/mag;
+        var step=(norm<1.5?1:norm<3.5?2:norm<7.5?5:10)*mag;
+        var lo=Math.floor(rawLo/step)*step, hi=Math.ceil(rawHi/step)*step;
+        var tickDec=step>=1?0:(step>=0.1?1:2);
+        function X(i){ return padL+(pts.length<2?0:i/(pts.length-1))*(W-padL-padR); }
+        function Y(v){ return padT+((hi-v)/(hi-lo))*(H-padT-padB); }
+        var out='<svg class="param-chart" viewBox="0 0 '+W+" "+H+'" role="img" aria-label="Grafik data '+esc(s.name)+' 21 November 2026">';
+        if(paramGrid){
+          for(v=lo; v<=hi+step*0.001; v+=step){
+            var gy=Y(v);
+            out+='<line x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+gy.toFixed(1)+'" stroke="var(--line)" stroke-width="1"/>';
+            out+='<text x="'+(padL-9)+'" y="'+(gy+4).toFixed(1)+'" font-size="11.5" text-anchor="end">'+v.toFixed(tickDec)+"</text>";
+          }
+        }
+        out+='<text transform="rotate(-90 15 '+((padT+H-padB)/2)+')" x="15" y="'+((padT+H-padB)/2)+'" font-size="12" text-anchor="middle">'+esc(s.name)+" ("+esc(s.unit)+")</text>";
+        var stride=Math.max(1,Math.ceil(pts.length/8));
+        for(i=0;i<pts.length;i++){
+          if(i%stride!==0 && i!==pts.length-1) continue;
+          var lx=X(i), ly=H-padB+12;
+          out+='<text transform="rotate(-32 '+lx.toFixed(1)+" "+ly+')" x="'+lx.toFixed(1)+'" y="'+ly+'" font-size="11" text-anchor="end">2026-11-21 '+pts[i].t+"</text>";
+        }
+        if(paramShowLine){
+          var xy=pts.map(function(p,i){ return {x:X(i), y:Y(p.v)}; });
+          out+='<path d="'+smoothPath(xy)+'" fill="none" stroke="#1E8FE8" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+        }
+        out+="</svg>";
+        return out;
+      }
+      function renderParam(){
+        var s=paramSensor(currentParam), d=DEVICES[0];
+        var pts=paramPoints(s);
+        var rangeTxt;
+        if(paramRealtime) rangeTxt="Realtime · data terakhir 2026-11-21, 18:30:00";
+        else if(paramRange==="semua") rangeTxt="2026-11-21, 00:00:00  →  2026-11-21, 23:59:59";
+        else rangeTxt="2026-11-21, "+pts[0].t+":00  →  2026-11-21, "+pts[pts.length-1].t+":00";
+        var sensorOpts=PARAM_SENSORS.map(function(x){ return '<option value="'+x.key+'"'+(x.key===s.key?" selected":"")+">"+esc(x.name)+"</option>"; }).join("");
+        var rangeOpts=[["semua","Semua"],["3","3 jam terakhir"],["6","6 jam terakhir"],["12","12 jam terakhir"]].map(function(o){ return '<option value="'+o[0]+'"'+(paramRange===o[0]?" selected":"")+">"+o[1]+"</option>"; }).join("");
+        var rows=pts.slice().reverse().map(function(p){
+          return "<tr><td>2026 November 21 "+p.t+':00</td><td class="val">'+paramFmt(p.v,s.dec)+"</td></tr>";
+        }).join("");
+        document.getElementById("paramRoot").innerHTML=
+          '<div class="card param-card" id="paramCard">'
+          +'<div class="param-devrow"><span class="param-namebox">'+esc(d.name)+"</span>"+chipFor(d.status)
+          +'<button class="param-fs" id="paramFs" aria-label="Tampilkan layar penuh"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button></div>'
+          +'<div class="param-id mono">'+esc(d.code)+"</div>"
+          +'<div class="param-row"><select class="param-select" id="paramSensorSel" aria-label="Pilih sensor">'+sensorOpts+'</select>'
+          +'<label class="realtime-box">Realtime<input type="checkbox" id="paramRealtime"'+(paramRealtime?" checked":"")+' /></label></div>'
+          +'<div class="param-row"><div class="range-field"><span>'+esc(rangeTxt)+'</span><svg class="ic sm" viewBox="0 0 24 24" style="margin-left:auto"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div></div>'
+          +'<div class="param-row"><select class="range-select" id="paramRangeSel" aria-label="Rentang data"'+(paramRealtime?" disabled":"")+">"+rangeOpts+'</select>'
+          +'<button class="dl-square" id="paramDownload" aria-label="Unduh data '+esc(s.name)+'"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v10m0 0 4-4m-4 4-4-4"/><path d="M4 17.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-1.5"/></svg></button></div>'
+          +'<div class="param-chart-tools"><button class="param-gear" id="paramGear" aria-label="Tampilkan / sembunyikan garis grid grafik"><svg class="ic sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg></button>'
+          +'<span class="param-sensor-tag"><span class="sq"></span>'+esc(s.name)+"</span></div>"
+          + paramChart(s, pts)
+          +'<div class="param-legend"><label><input type="checkbox" id="paramLegendChk"'+(paramShowLine?" checked":"")+" />"+esc(s.name)+" ("+esc(s.unit)+")</label></div>"
+          +'<div class="monitor-card"><h3>Data Pemantauan</h3><div class="monitor-wrap"><table class="monitor-table"><thead><tr><th>Waktu Pemantauan</th><th>'+esc(s.name)+" ("+esc(s.unit)+")</th></tr></thead><tbody>"+rows+"</tbody></table></div></div>"
+          +'<p class="updated" style="margin:12px 2px 0">Data simulasi 21 Nov 2026 · '+pts.length+" titik data · "+esc(s.code)+"</p>"
+          +"</div>";
+      }
+      document.getElementById("paramRoot").addEventListener("change",function(e){
+        if(e.target.id==="paramSensorSel"){ currentParam=e.target.value; paramShowLine=true; renderParam(); }
+        else if(e.target.id==="paramRangeSel"){ paramRange=e.target.value; renderParam(); }
+        else if(e.target.id==="paramRealtime"){ paramRealtime=e.target.checked; renderParam(); }
+        else if(e.target.id==="paramLegendChk"){ paramShowLine=e.target.checked; renderParam(); }
+      });
+      document.getElementById("paramRoot").addEventListener("click",function(e){
+        if(e.target.closest("#paramGear")){ paramGrid=!paramGrid; renderParam(); return; }
+        if(e.target.closest("#paramFs")){
+          var card=document.getElementById("paramCard");
+          if(card && card.requestFullscreen){ var p=card.requestFullscreen(); if(p && p.catch) p.catch(function(){ toast("Mode layar penuh tidak tersedia"); }); }
+          else toast("Mode layar penuh tidak tersedia");
+          return;
+        }
+        if(e.target.closest("#paramDownload")){
+          var s=paramSensor(currentParam), pts=paramPoints(s);
+          var csv="waktu,sensor,nilai,satuan\n"+pts.map(function(p){ return "2026-11-21 "+p.t+":00,"+s.name+","+paramFmt(p.v,s.dec)+","+s.unit; }).join("\n");
+          var fname="sparing-kipi_"+s.name.toLowerCase().replace(/\s+/g,"-")+"_2026-11-21.csv";
+          downloadFile(fname,csv,"text/csv");
+          toast("File diunduh: "+fname);
+        }
       });
       /* ---------- perangkat: cari & bandingkan ---------- */
       document.getElementById("deviceSearch").addEventListener("input",function(e){
