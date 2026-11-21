@@ -1347,10 +1347,35 @@
         function closeMapPop(){ if(mapPop) mapPop.classList.remove("open"); }
         window.__openMapPop=openMapPop;
         document.getElementById("mapPopClose").addEventListener("click",closeMapPop);
-        document.getElementById("popViewDetails").addEventListener("click",function(){ closeMapPop(); go("detail","kipi","ph"); });
-        document.getElementById("mapEl").addEventListener("click",function(e){
+        document.getElementById("popViewDetails").addEventListener("click",function(){ closeMapPop(); openParam("hum"); });
+        /* Popup HARUS tertutup saat peta ditekan atau digeser (peta interaktif).
+           Dengarkan pointerdown/mousedown/touchstart di fase capture pada #mapEl
+           supaya popup langsung tertutup di awal tekanan/geseran, sebelum handler
+           drag bawaan peta berjalan. Menekan marker tidak dicegah: event click
+           sesudahnya tetap membuka popup lagi, dan View details tetap ke Detail Parameter. */
+        var mapElEl=document.getElementById("mapEl");
+        function closePopOnMapPress(e){
+          if(e && e.target && e.target.closest && e.target.closest(".map-pop")) return;
+          closeMapPop();
+        }
+        mapElEl.addEventListener("pointerdown",closePopOnMapPress,true);
+        mapElEl.addEventListener("mousedown",closePopOnMapPress,true);
+        mapElEl.addEventListener("touchstart",closePopOnMapPress,{capture:true,passive:true});
+        mapElEl.addEventListener("pointermove",function(e){ if(e.buttons) closeMapPop(); },true);
+        mapElEl.addEventListener("wheel",closePopOnMapPress,{capture:true,passive:true});
+        mapElEl.addEventListener("click",function(e){
           if(e.target.closest && e.target.closest(".pin")) openMapPop();
         });
+        /* Jika peta interaktif mengekspos event drag/move, tutup juga dari sana. */
+        (function hookMapDragClose(attempt){
+          try{
+            var m=mapHandle && (mapHandle.getMap ? mapHandle.getMap() : mapHandle.map);
+            if(m && m.on){
+              m.on("dragstart",closeMapPop); m.on("movestart",closeMapPop);
+              m.on("mousedown",closeMapPop); m.on("touchstart",closeMapPop);
+            } else if(attempt<10){ setTimeout(function(){ hookMapDragClose(attempt+1); },600); }
+          }catch(err){ if(attempt<10) setTimeout(function(){ hookMapDragClose(attempt+1); },600); }
+        })(0);
         var legendPanel=document.getElementById("legendPanel"), dataPanel=document.getElementById("dataPanel");
         var legendBtn=document.getElementById("legendBtn"), dataBtn=document.getElementById("dataBtn");
         function togglePanel(which){
@@ -1384,7 +1409,10 @@
           var drag=null;
           vp.addEventListener("pointerdown",function(e){
             if(e.button!==undefined && e.button!==0) return;
-            var mp=document.getElementById("mapPop"); if(mp) mp.classList.remove("open");
+            /* Popup perangkat tertutup begitu peta ditekan / digeser. Jika yang
+               ditekan tepat marker-nya, tap bersih (tanpa geser) di pointerup
+               tetap membukanya lagi lewat logika wasTap di endDrag. */
+            closeMapPop();
             drag={id:e.pointerId,x:e.clientX,y:e.clientY,sx:fbX,sy:fbY};
             vp.classList.add("dragging");
             try{ vp.setPointerCapture(e.pointerId); }catch(err){}
@@ -1392,6 +1420,7 @@
           });
           vp.addEventListener("pointermove",function(e){
             if(!drag || e.pointerId!==drag.id) return;
+            if(Math.abs(e.clientX-drag.x)>7 || Math.abs(e.clientY-drag.y)>7) closeMapPop();
             fbX=drag.sx+(e.clientX-drag.x); fbY=drag.sy+(e.clientY-drag.y);
             clampFb(); applyFb();
           });
