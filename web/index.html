@@ -158,13 +158,36 @@
       .fb-viewport{position:absolute;inset:-25%;cursor:grab;touch-action:none;will-change:transform;transition:transform .25s ease}
       .fb-viewport.dragging{cursor:grabbing;transition:none}
       .fb-viewport>*{pointer-events:none}
-      .map-frame .map-fallback img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;user-select:none;-webkit-user-drag:none}
+      .map-frame .map-fallback img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;user-select:none;-webkit-user-drag:none;filter:grayscale(1)}
+      /* Tema abu-abu peta interaktif: tile ikut difilter grayscale, bukan hanya gambar cadangan.
+         Hanya lapisan tile/canvas yang difilter — marker, popup, dan kontrol peta tetap berwarna. */
+      #mapEl canvas,
+      #mapEl .maplibregl-canvas,
+      #mapEl .leaflet-tile-pane,
+      #mapEl .leaflet-layer,
+      #mapEl .leaflet-tile,
+      #mapEl .leaflet-tile-container img,
+      #mapEl img.leaflet-tile{filter:grayscale(1)!important}
       .map-hint{position:absolute;z-index:6;top:14px;left:50%;transform:translateX(-50%);background:rgba(21,36,47,.8);color:#fff;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:99px;pointer-events:none;white-space:nowrap;transition:opacity .35s ease}
       .map-hint.gone{opacity:0}
       .st-mid.solo{justify-content:center}
       .dev-marker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:#8A6D46;border:3px solid #fff;box-shadow:0 0 0 3px #2FBF71,0 0 0 10px rgba(47,191,113,.30),0 8px 16px rgba(21,36,47,.30);display:grid;place-items:center;color:#fff;z-index:4}
       .dev-marker svg{width:22px;height:22px}
       .dev-label{position:absolute;left:50%;top:calc(50% + 32px);transform:translateX(-50%);z-index:4;font-size:15px;font-weight:600;color:#54687A;text-shadow:0 1px 0 rgba(255,255,255,.9),0 0 6px rgba(255,255,255,.85),0 0 12px rgba(255,255,255,.7);letter-spacing:.01em}
+      .map-pop{position:absolute;z-index:9;left:50%;top:46%;transform:translate(-50%,-100%);width:min(342px,calc(100% - 36px));background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-lg);padding:16px 18px 13px;display:none;text-align:left}
+      .map-pop.open{display:block}
+      .map-pop::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%) rotate(45deg);width:17px;height:17px;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+      .map-pop h3{margin:0 28px 1px 0;font-size:17px;font-weight:800;letter-spacing:-.01em}
+      .map-pop .pop-id{color:var(--muted);font-size:13.5px;margin-bottom:9px}
+      .map-pop-x{position:absolute;top:9px;right:9px;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:var(--muted)}
+      .map-pop-x:hover{background:var(--surface-2);color:var(--ink)}
+      .pop-rows{border-top:1px solid var(--line);margin-top:12px;padding-top:6px}
+      .pop-row{display:flex;justify-content:space-between;gap:16px;padding:5px 0;font-size:13.5px}
+      .pop-row span{color:var(--muted)}
+      .pop-row b{font-weight:700;text-align:right}
+      .pop-actions{display:flex;gap:10px;margin-top:11px}
+      .pop-actions .btn{flex:1;justify-content:center;min-height:44px;padding:9px 10px}
+      .pop-note{margin:9px 0 0;font-size:12px;color:var(--muted);text-align:center}
       #mapEl .pin{width:42px;height:42px;border-radius:50%;transform:none;background:#8A6D46;border:3px solid #fff;box-shadow:0 0 0 3px #2FBF71,0 0 0 10px rgba(47,191,113,.30),0 8px 16px rgba(21,36,47,.30);font-size:0;color:#fff}
       .map-ctl{position:absolute;z-index:6;width:47px;height:47px;border-radius:13px;background:var(--surface);border:1px solid rgba(223,231,236,.9);box-shadow:0 3px 12px rgba(21,36,47,.16);display:grid;place-items:center;color:#33475B}
       .map-ctl:hover{color:var(--ink)}
@@ -451,6 +474,24 @@
                     <span class="dev-label" aria-hidden="true">Sukolilo</span>
                   </div>
                 </figure>
+                <div class="map-pop" id="mapPop" role="dialog" aria-label="Detail perangkat Sparing KIPI di peta">
+                  <button class="map-pop-x" id="mapPopClose" aria-label="Tutup popup perangkat"><svg class="ic sm" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+                  <h3>Sparing KIPI</h3>
+                  <div class="pop-id mono">MTI-1OH9R4FCETTL</div>
+                  <span class="chip chip--online"><span class="dot"></span>Online</span>
+                  <div class="pop-rows">
+                    <div class="pop-row"><span>Type</span><b>Water Quality — Sparing</b></div>
+                    <div class="pop-row"><span>Site</span><b>Sukolilo · Surabaya, Jawa Timur</b></div>
+                    <div class="pop-row"><span>Last update</span><b>21 Nov 2026, 18:14</b></div>
+                    <div class="pop-row"><span>Battery</span><b id="popBattery">86%</b></div>
+                    <div class="pop-row"><span>Firmware</span><b>Not reported</b></div>
+                  </div>
+                  <div class="pop-actions">
+                    <a class="btn" id="popDirections" href="https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&amp;route=%3B-7.29665%2C112.80123" target="_blank" rel="noopener">Directions<svg class="ic sm" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4 11 13"/></svg></a>
+                    <button class="btn btn--accent" id="popViewDetails">View details<svg class="ic sm" viewBox="0 0 24 24"><path d="M4 12h15m0 0-6-6m6 6-6 6"/></svg></button>
+                  </div>
+                  <p class="pop-note">Illustrative demo coordinates; verify before travel.</p>
+                </div>
                 <div class="map-hint" id="mapHint" aria-hidden="true">Seret untuk menggeser peta</div>
                 <button class="map-ctl ctl-search" id="mapSearchBtn" aria-label="Cari lokasi perangkat"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20.5 20.5-4.6-4.6"/></svg></button>
                 <button class="map-ctl ctl-layers" id="mapLayersBtn" aria-label="Lapisan dan legenda peta"><svg class="ic" viewBox="0 0 24 24"><path d="m12 3.5 9 4.7-9 4.7-9-4.7 9-4.7Z"/><path d="m3.6 13.4 8.4 4.4 8.4-4.4"/></svg></button>
@@ -490,7 +531,7 @@
               <div>
                 <p class="eyebrow">Telemetri</p>
                 <h1 class="page">Perangkat</h1>
-                <p class="lede">Semua device telemetri Mertani. Ketuk kartu perangkat untuk membuka detail sensornya.</p>
+                <p class="lede">Semua device telemetri Mertani. Ketuk kartu perangkat untuk langsung membuka halaman detail parameternya — grafik data, tabel pemantauan, dan unduh.</p>
               </div>
               <button class="btn" id="compareBtn" aria-expanded="false"><svg class="ic sm" viewBox="0 0 24 24"><path d="M8 3v18M8 3 4.5 6.5M8 3l3.5 3.5M16 21V3m0 18 3.5-3.5M16 21l-3.5-3.5" transform="rotate(90 12 12)"/></svg>Bandingkan</button>
             </div>
@@ -514,7 +555,7 @@
 
           <!-- ============ DETAIL PARAMETER (dari Live readings) ============ -->
           <section class="view" id="view-param">
-            <button class="backbtn" data-nav="beranda"><svg class="ic sm" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>Kembali ke Overview</button>
+            <button class="backbtn" id="paramBackBtn" data-nav="beranda"><svg class="ic sm" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>Kembali ke Overview</button>
             <div id="paramRoot"></div>
           </section>
 
@@ -752,7 +793,14 @@
         document.getElementById("bellBtn").setAttribute("aria-expanded","false");
         setDrawer(false);
         if(view==="detail") renderDetail(currentDevice, focusSensor);
-        if(view==="param") renderParam();
+        if(view==="param"){
+          var bb=document.getElementById("paramBackBtn");
+          if(bb){
+            bb.setAttribute("data-nav",paramBack);
+            bb.innerHTML='<svg class="ic sm" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>'+(paramBack==="perangkat"?"Kembali ke Perangkat":"Kembali ke Overview");
+          }
+          renderParam();
+        }
         window.scrollTo({top:0,behavior:"auto"});
       }
       document.addEventListener("click",function(e){
@@ -789,10 +837,10 @@
         var cp=e.target.closest("[data-copy]");
         if(cp){ e.stopPropagation(); copyText(cp.getAttribute("data-copy"),"ID perangkat disalin"); return; }
         var card=e.target.closest("[data-device]");
-        if(card){ go("detail", card.getAttribute("data-device"), "ph"); }
+        if(card){ openParamForDevice(card.getAttribute("data-device")); }
       });
       document.addEventListener("keydown",function(e){
-        if(e.key==="Enter" && e.target.matches && e.target.matches("[data-device]")) go("detail", e.target.getAttribute("data-device"), "ph");
+        if(e.key==="Enter" && e.target.matches && e.target.matches("[data-device]")) openParamForDevice(e.target.getAttribute("data-device"));
       });
       /* ---------- stage Live readings (fokus tengah, persis referensi) ---------- */
       var READINGS=[
@@ -938,15 +986,67 @@
         {key:"hum", name:"Air Humidity", unit:"%RH", code:"RSC-hum", dec:2, series:[93.0,92.8,92.6,92.9,93.4,94.0,94.2,93.8,93.5,94.4,94.1,92.0,89.5,93.0,92.5,88.0,82.0,76.5,73.0,71.5,66.0,58.5,56.2,57.0,72.0,88.0,95.8,94.0,82.0,70.5,67.0,65.2,66.5,67.97,77.2,83.4,86.1,87.1]},
         {key:"pres", name:"Air Pressure", unit:"hPa", code:"RSC-pres", dec:1, series:[1011.4,1011.6,1011.8,1012.0,1012.1,1012.3,1012.2,1012.0,1011.7,1011.4,1011.0,1010.6,1010.2,1009.9,1009.7,1009.6,1009.8,1010.1,1010.5,1010.9,1011.3,1011.6,1011.9,1012.1,1012.0,1011.8,1011.5,1011.2,1010.9,1010.7,1010.8,1011.1,1011.4,1011.7,1012.0,1012.2,1012.4,1012.5]}
       ];
-      var currentParam="hum", paramRange="semua", paramRealtime=false, paramShowLine=true, paramGrid=true;
+      var currentParam="hum", paramAgg="semua", paramRealtime=false, paramShowLine=true, paramGrid=true;
+      var currentParamDevice="kipi", paramBack="beranda";
+      var PARAM_AGG_OPTIONS=[["semua","Semua"],["jam","Rata-rata per Jam"],["hari","Rata-rata per Hari"],["minggu","Rata-rata per Minggu"],["bulan","Rata-rata per Bulan"]];
+      var PARAM_AGG_LABEL={"semua":"Data mentah per 30 menit — tanpa rata-rata","jam":"Rata-rata per jam","hari":"Rata-rata per hari","minggu":"Rata-rata per minggu","bulan":"Rata-rata per bulan"};
+      var MONTHS_ID=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+      var MONTHS_SHORT=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
       function paramSensor(key){ for(var i=0;i<PARAM_SENSORS.length;i++) if(PARAM_SENSORS[i].key===key) return PARAM_SENSORS[i]; return PARAM_SENSORS[1]; }
-      function openParam(pkey){ currentParam=pkey; paramRange="semua"; paramRealtime=false; paramShowLine=true; go("param"); }
+      function openParam(pkey){ currentParamDevice="kipi"; paramBack="beranda"; currentParam=pkey; paramAgg="semua"; paramRealtime=false; paramShowLine=true; go("param"); }
+      function openParamForDevice(deviceId){ currentParamDevice=deviceId||"kipi"; paramBack="perangkat"; currentParam="hum"; paramAgg="semua"; paramRealtime=false; paramShowLine=true; go("param"); }
       function paramFmt(v,dec){ return String(parseFloat(v.toFixed(dec))); }
+      function pad2(n){ return (n<10?"0":"")+n; }
+      function fmtDateID(d){ return d.getFullYear()+" "+MONTHS_ID[d.getMonth()]+" "+d.getDate(); }
+      function fmtDateISO(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+      function addDays(d,n){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()+n); return x; }
+      var PARAM_END_DATE=new Date(2026,10,21);
+      function paramBaseAvg(s){ var t=0; for(var i=0;i<s.series.length;i++) t+=s.series[i]; return t/s.series.length; }
+      function paramDailyAvg(s,d){
+        var base=paramBaseAvg(s);
+        if(d.getFullYear()===2026&&d.getMonth()===10&&d.getDate()===21) return base;
+        var dayNum=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
+        var hash=0; for(var i=0;i<s.key.length;i++) hash+=s.key.charCodeAt(i)*(i+3);
+        var mn=Math.min.apply(null,s.series), mx=Math.max.apply(null,s.series), span=(mx-mn)||1;
+        var v=base+Math.sin(dayNum*0.91+hash)*span*0.10+Math.sin(dayNum*0.37+hash*0.7+1.3)*span*0.06;
+        var lo=mn-span*0.08, hi=mx+span*0.08;
+        return Math.max(lo,Math.min(hi,v));
+      }
       function paramPoints(s){
-        var pts=s.series.map(function(v,i){ return {t:PARAM_TIMES[i], min:i*30, v:v}; });
-        if(paramRealtime || paramRange==="semua") return pts;
-        var hrs=parseInt(paramRange,10), lastMin=pts[pts.length-1].min;
-        return pts.filter(function(p){ return p.min>=lastMin-hrs*60; });
+        if(paramRealtime || paramAgg==="semua"){
+          return s.series.map(function(v,i){ return {v:v, tableLabel:"2026 November 21 "+PARAM_TIMES[i]+":00", chartLabel:"2026-11-21 "+PARAM_TIMES[i], csvTime:"2026-11-21 "+PARAM_TIMES[i]+":00"}; });
+        }
+        if(paramAgg==="jam"){
+          var byHour={}, order=[], i, h;
+          for(i=0;i<s.series.length;i++){ h=PARAM_TIMES[i].slice(0,2); if(!byHour[h]){ byHour[h]=[]; order.push(h); } byHour[h].push(s.series[i]); }
+          return order.map(function(hh){
+            var arr=byHour[hh], t=0; for(var j=0;j<arr.length;j++) t+=arr[j];
+            return {v:t/arr.length, tableLabel:"2026 November 21 "+hh+":00:00", chartLabel:"2026-11-21 "+hh+":00", csvTime:"2026-11-21 "+hh+":00:00"};
+          });
+        }
+        if(paramAgg==="hari"){
+          var outH=[];
+          for(var off=29;off>=0;off--){ var dH=addDays(PARAM_END_DATE,-off); outH.push({v:paramDailyAvg(s,dH), tableLabel:fmtDateID(dH), chartLabel:fmtDateISO(dH), csvTime:fmtDateISO(dH)}); }
+          return outH;
+        }
+        if(paramAgg==="minggu"){
+          var outW=[];
+          for(var w=11;w>=0;w--){ var endW=addDays(PARAM_END_DATE,-w*7), startW=addDays(endW,-6), tw=0, k; for(k=0;k<7;k++) tw+=paramDailyAvg(s,addDays(startW,k));
+            outW.push({v:tw/7, tableLabel:fmtDateID(startW)+" – "+fmtDateID(endW), chartLabel:startW.getDate()+" "+MONTHS_SHORT[startW.getMonth()]+" – "+endW.getDate()+" "+MONTHS_SHORT[endW.getMonth()], csvTime:fmtDateISO(startW)+" s/d "+fmtDateISO(endW)}); }
+          return outW;
+        }
+        /* bulan: Jun–Nov 2026, November hanya 1–21 Nov */
+        var outB=[];
+        for(var m=5;m<=10;m++){ var first=new Date(2026,m,1), last=(m===10)?new Date(2026,10,21):new Date(2026,m+1,0), days=last.getDate(), tb=0; for(var dd=1;dd<=days;dd++) tb+=paramDailyAvg(s,new Date(2026,m,dd));
+          outB.push({v:tb/days, tableLabel:"2026 "+MONTHS_ID[m], chartLabel:MONTHS_SHORT[m]+" 2026", csvTime:"2026-"+pad2(m+1)}); }
+        return outB;
+      }
+      function paramRangeText(){
+        if(paramRealtime) return "Realtime · data terakhir 2026-11-21, 18:30:00";
+        if(paramAgg==="hari") return fmtDateISO(addDays(PARAM_END_DATE,-29))+", 00:00:00  →  2026-11-21, 23:59:59";
+        if(paramAgg==="minggu") return fmtDateISO(addDays(PARAM_END_DATE,-83))+", 00:00:00  →  2026-11-21, 23:59:59";
+        if(paramAgg==="bulan") return "2026-06-01, 00:00:00  →  2026-11-21, 23:59:59";
+        return "2026-11-21, 00:00:00  →  2026-11-21, 23:59:59";
       }
       function smoothPath(xy){
         if(xy.length<2) return "";
@@ -984,7 +1084,7 @@
         for(i=0;i<pts.length;i++){
           if(i%stride!==0 && i!==pts.length-1) continue;
           var lx=X(i), ly=H-padB+12;
-          out+='<text transform="rotate(-32 '+lx.toFixed(1)+" "+ly+')" x="'+lx.toFixed(1)+'" y="'+ly+'" font-size="11" text-anchor="end">2026-11-21 '+pts[i].t+"</text>";
+          out+='<text transform="rotate(-32 '+lx.toFixed(1)+" "+ly+')" x="'+lx.toFixed(1)+'" y="'+ly+'" font-size="11" text-anchor="end">'+esc(pts[i].chartLabel)+"</text>";
         }
         if(paramShowLine){
           var xy=pts.map(function(p,i){ return {x:X(i), y:Y(p.v)}; });
@@ -994,16 +1094,25 @@
         return out;
       }
       function renderParam(){
-        var s=paramSensor(currentParam), d=DEVICES[0];
+        var s=paramSensor(currentParam), d=null;
+        for(var di=0;di<DEVICES.length;di++) if(DEVICES[di].id===currentParamDevice) d=DEVICES[di];
+        if(!d) d=DEVICES[0];
+        if(d.id==="testing"){
+          document.getElementById("paramRoot").innerHTML=
+            '<div class="card param-card" id="paramCard">'
+            +'<div class="param-devrow"><span class="param-namebox">'+esc(d.name)+"</span>"+chipFor(d.status)+"</div>"
+            +'<div class="param-id mono">'+esc(d.code)+"</div>"
+            +'<div class="card empty-note" style="border:0;box-shadow:none"><b style="color:var(--ink)">Perangkat sedang dalam pemeliharaan</b><br />Tidak ada data pemantauan untuk ditampilkan — tidak ada pembacaan baru sejak 12 Juni 2026, 13:42. Grafik, tabel, dan unduh akan tersedia lagi begitu perangkat kembali online.</div>'
+            +"</div>";
+          return;
+        }
         var pts=paramPoints(s);
-        var rangeTxt;
-        if(paramRealtime) rangeTxt="Realtime · data terakhir 2026-11-21, 18:30:00";
-        else if(paramRange==="semua") rangeTxt="2026-11-21, 00:00:00  →  2026-11-21, 23:59:59";
-        else rangeTxt="2026-11-21, "+pts[0].t+":00  →  2026-11-21, "+pts[pts.length-1].t+":00";
+        var rangeTxt=paramRangeText();
+        var aggLabel=paramRealtime?"Realtime — data mentah per 30 menit":PARAM_AGG_LABEL[paramAgg];
         var sensorOpts=PARAM_SENSORS.map(function(x){ return '<option value="'+x.key+'"'+(x.key===s.key?" selected":"")+">"+esc(x.name)+"</option>"; }).join("");
-        var rangeOpts=[["semua","Semua"],["3","3 jam terakhir"],["6","6 jam terakhir"],["12","12 jam terakhir"]].map(function(o){ return '<option value="'+o[0]+'"'+(paramRange===o[0]?" selected":"")+">"+o[1]+"</option>"; }).join("");
+        var rangeOpts=PARAM_AGG_OPTIONS.map(function(o){ return '<option value="'+o[0]+'"'+(paramAgg===o[0]?" selected":"")+">"+o[1]+"</option>"; }).join("");
         var rows=pts.slice().reverse().map(function(p){
-          return "<tr><td>2026 November 21 "+p.t+':00</td><td class="val">'+paramFmt(p.v,s.dec)+"</td></tr>";
+          return "<tr><td>"+esc(p.tableLabel)+'</td><td class="val">'+paramFmt(p.v,s.dec)+"</td></tr>";
         }).join("");
         document.getElementById("paramRoot").innerHTML=
           '<div class="card param-card" id="paramCard">'
@@ -1013,19 +1122,19 @@
           +'<div class="param-row"><select class="param-select" id="paramSensorSel" aria-label="Pilih sensor">'+sensorOpts+'</select>'
           +'<label class="realtime-box">Realtime<input type="checkbox" id="paramRealtime"'+(paramRealtime?" checked":"")+' /></label></div>'
           +'<div class="param-row"><div class="range-field"><span>'+esc(rangeTxt)+'</span><svg class="ic sm" viewBox="0 0 24 24" style="margin-left:auto"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div></div>'
-          +'<div class="param-row"><select class="range-select" id="paramRangeSel" aria-label="Rentang data"'+(paramRealtime?" disabled":"")+">"+rangeOpts+'</select>'
+          +'<div class="param-row"><select class="range-select" id="paramRangeSel" aria-label="Agregasi rata-rata data"'+(paramRealtime?" disabled":"")+">"+rangeOpts+'</select>'
           +'<button class="dl-square" id="paramDownload" aria-label="Unduh data '+esc(s.name)+'"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v10m0 0 4-4m-4 4-4-4"/><path d="M4 17.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-1.5"/></svg></button></div>'
           +'<div class="param-chart-tools"><button class="param-gear" id="paramGear" aria-label="Tampilkan / sembunyikan garis grid grafik"><svg class="ic sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg></button>'
           +'<span class="param-sensor-tag"><span class="sq"></span>'+esc(s.name)+"</span></div>"
           + paramChart(s, pts)
           +'<div class="param-legend"><label><input type="checkbox" id="paramLegendChk"'+(paramShowLine?" checked":"")+" />"+esc(s.name)+" ("+esc(s.unit)+")</label></div>"
           +'<div class="monitor-card"><h3>Data Pemantauan</h3><div class="monitor-wrap"><table class="monitor-table"><thead><tr><th>Waktu Pemantauan</th><th>'+esc(s.name)+" ("+esc(s.unit)+")</th></tr></thead><tbody>"+rows+"</tbody></table></div></div>"
-          +'<p class="updated" style="margin:12px 2px 0">Data simulasi 21 Nov 2026 · '+pts.length+" titik data · "+esc(s.code)+"</p>"
+          +'<p class="updated" style="margin:12px 2px 0">Data simulasi · '+esc(aggLabel)+" · "+pts.length+" titik data · "+esc(s.code)+"</p>"
           +"</div>";
       }
       document.getElementById("paramRoot").addEventListener("change",function(e){
         if(e.target.id==="paramSensorSel"){ currentParam=e.target.value; paramShowLine=true; renderParam(); }
-        else if(e.target.id==="paramRangeSel"){ paramRange=e.target.value; renderParam(); }
+        else if(e.target.id==="paramRangeSel"){ paramAgg=e.target.value; renderParam(); }
         else if(e.target.id==="paramRealtime"){ paramRealtime=e.target.checked; renderParam(); }
         else if(e.target.id==="paramLegendChk"){ paramShowLine=e.target.checked; renderParam(); }
       });
@@ -1039,8 +1148,9 @@
         }
         if(e.target.closest("#paramDownload")){
           var s=paramSensor(currentParam), pts=paramPoints(s);
-          var csv="waktu,sensor,nilai,satuan\n"+pts.map(function(p){ return "2026-11-21 "+p.t+":00,"+s.name+","+paramFmt(p.v,s.dec)+","+s.unit; }).join("\n");
-          var fname="sparing-kipi_"+s.name.toLowerCase().replace(/\s+/g,"-")+"_2026-11-21.csv";
+          var aggName=paramRealtime?"realtime":paramAgg;
+          var csv="waktu,sensor,nilai,satuan,agregasi\n"+pts.map(function(p){ return p.csvTime+","+s.name+","+paramFmt(p.v,s.dec)+","+s.unit+","+(paramRealtime?"Realtime":PARAM_AGG_LABEL[paramAgg]); }).join("\n");
+          var fname="sparing-kipi_"+s.name.toLowerCase().replace(/\s+/g,"-")+"_"+aggName+"_2026-11-21.csv";
           downloadFile(fname,csv,"text/csv");
           toast("File diunduh: "+fname);
         }
@@ -1188,10 +1298,54 @@
         }catch(e){ document.getElementById("mapsLink").style.display="none"; }
         try{
           if(window.MapHelpers && MapHelpers.mountPlaceListMap){
-            mapHandle=MapHelpers.mountPlaceListMap(document.getElementById("mapEl"), {places:places, rows:[document.getElementById("placeRow0")], baseStyle:"light"}, showFallback);
+            mapHandle=MapHelpers.mountPlaceListMap(document.getElementById("mapEl"), {places:places, rows:[document.getElementById("placeRow0")], baseStyle:"grayscale"}, showFallback);
             if(!mapHandle) showFallback();
           } else showFallback();
         }catch(e){ showFallback(); }
+        /* Paksa tile peta interaktif tampil abu-abu: canvas MapLibre & tile <img> Leaflet/OSM
+           dibuat asinkron setelah mount, jadi terapkan filter inline + awasi node baru.
+           Marker/popup tidak disentuh agar tetap berwarna. */
+        (function enforceGrayTiles(){
+          var root=document.getElementById("mapEl");
+          if(!root) return;
+          var TILE_SEL="canvas, .maplibregl-canvas, .leaflet-tile-pane, .leaflet-tile, .leaflet-tile-container img, img.leaflet-tile";
+          function paint(scope){
+            var nodes=scope.querySelectorAll ? scope.querySelectorAll(TILE_SEL) : [];
+            for(var i=0;i<nodes.length;i++) nodes[i].style.setProperty("filter","grayscale(1)","important");
+          }
+          paint(root);
+          if(window.MutationObserver){
+            var pending=false;
+            var mo=new MutationObserver(function(){
+              if(pending) return; pending=true;
+              requestAnimationFrame(function(){ pending=false; paint(root); });
+            });
+            mo.observe(root,{childList:true,subtree:true});
+            setTimeout(function(){ mo.disconnect(); },30000);
+          }
+        })();
+        /* ---------- popup detail device saat marker diklik ---------- */
+        var mapPop=document.getElementById("mapPop");
+        function openMapPop(){
+          try{
+            var bEl=document.getElementById("popBattery");
+            if(bEl) bEl.textContent=fmt(lastVal(sensor("battery")),0)+"%";
+            var dir=document.getElementById("popDirections");
+            if(dir && window.MapHelpers && MapHelpers.mapsDirectionsUrl){
+              var du=MapHelpers.mapsDirectionsUrl(places[0]);
+              if(du) dir.href=du;
+            }
+          }catch(e){}
+          if(mapPop) mapPop.classList.add("open");
+          hideMapHint();
+        }
+        function closeMapPop(){ if(mapPop) mapPop.classList.remove("open"); }
+        window.__openMapPop=openMapPop;
+        document.getElementById("mapPopClose").addEventListener("click",closeMapPop);
+        document.getElementById("popViewDetails").addEventListener("click",function(){ closeMapPop(); go("detail","kipi","ph"); });
+        document.getElementById("mapEl").addEventListener("click",function(e){
+          if(e.target.closest && e.target.closest(".pin")) openMapPop();
+        });
         var legendPanel=document.getElementById("legendPanel"), dataPanel=document.getElementById("dataPanel");
         var legendBtn=document.getElementById("legendBtn"), dataBtn=document.getElementById("dataBtn");
         function togglePanel(which){
@@ -1225,6 +1379,7 @@
           var drag=null;
           vp.addEventListener("pointerdown",function(e){
             if(e.button!==undefined && e.button!==0) return;
+            var mp=document.getElementById("mapPop"); if(mp) mp.classList.remove("open");
             drag={id:e.pointerId,x:e.clientX,y:e.clientY,sx:fbX,sy:fbY};
             vp.classList.add("dragging");
             try{ vp.setPointerCapture(e.pointerId); }catch(err){}
@@ -1236,7 +1391,15 @@
             clampFb(); applyFb();
           });
           function endDrag(e){
-            if(drag && (!e || e.pointerId===drag.id)){ drag=null; vp.classList.remove("dragging"); }
+            if(drag && (!e || e.pointerId===drag.id)){
+              var wasTap=false;
+              if(e && Math.abs(e.clientX-drag.x)<7 && Math.abs(e.clientY-drag.y)<7){
+                var mk=vp.querySelector(".dev-marker");
+                if(mk){ var r=mk.getBoundingClientRect(); wasTap=e.clientX>=r.left-8 && e.clientX<=r.right+8 && e.clientY>=r.top-8 && e.clientY<=r.bottom+8; }
+              }
+              drag=null; vp.classList.remove("dragging");
+              if(wasTap && window.__openMapPop) window.__openMapPop();
+            }
           }
           vp.addEventListener("pointerup",endDrag);
           vp.addEventListener("pointercancel",endDrag);
