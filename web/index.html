@@ -12,7 +12,113 @@
     <link rel="stylesheet" href="assets/vendor-maplibre.css" />
     <link rel="stylesheet" href="assets/style.css" />
   </head>
-  <body>
+  <body class="auth-lock">
+    <!-- ============ LOGIN / SIGNUP ============ -->
+    <div class="auth" id="authScreen">
+      <div class="auth-panel">
+        <div class="auth-brand">
+          <span class="auth-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-7"/><path d="M12 14c0-3.2-2.4-5-6-5 0 3.6 2 5.4 6 5Z"/><path d="M12 11.5c0-3 2.2-4.7 5.5-4.7 0 3.3-1.8 5-5.5 4.7Z"/></svg></span>
+          <span class="auth-brand-txt"><b>DSTx</b><small>IoT Solution</small></span>
+        </div>
+        <p class="auth-eyebrow"><span class="auth-eyebrow-dot"></span>IoT Monitoring Platform</p>
+        <h1 class="auth-title">Monitor smarter,<br />act faster.</h1>
+        <p class="auth-lede">Track devices, inspect sensor data, and turn telemetry into actionable insights across your IoT deployments.</p>
+
+        <div class="three-wrap" id="threeWrap">
+          <canvas id="threeCanvas" aria-label="Model 3D stasiun telemetri Sparing KIPI"></canvas>
+          <div class="three-hint" aria-hidden="true">Seret untuk memutar model 3D</div>
+          <div class="three-fallback" id="threeFallback">Visualisasi 3D tidak dapat dimuat di perangkat ini.</div>
+        </div>
+        <div class="auth-chips">
+          <span class="auth-chip"><span class="auth-chip-dot"></span>Sparing KIPI · Online</span>
+          <span class="auth-chip">Water Level · 1,84 m</span>
+          <span class="auth-chip">Signal · −67 dBm</span>
+          <span class="auth-chip">Battery · 86%</span>
+        </div>
+
+        <div class="auth-flow">
+          <div class="auth-node">
+            <span class="auth-node-ic"><svg class="ic lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M8.6 15.4a4.8 4.8 0 0 1 0-6.8M15.4 8.6a4.8 4.8 0 0 1 0 6.8M6.2 17.8a8.4 8.4 0 0 1 0-11.6M17.8 6.2a8.4 8.4 0 0 1 0 11.6"/></svg></span>
+            <span class="auth-node-txt"><small>Field Device</small><b>Sensor node</b></span>
+            <span class="auth-node-live" aria-hidden="true"></span>
+          </div>
+          <div class="auth-link" aria-hidden="true"><span class="auth-link-line"></span><em>encrypted telemetry</em></div>
+          <div class="auth-node">
+            <span class="auth-node-ic"><svg class="ic lg" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 2.8V7M14 2.8V7M10 17v4.2M14 17v4.2M2.8 10H7M2.8 14H7M17 10h4.2M17 14h4.2"/></svg></span>
+            <span class="auth-node-txt"><small>Edge Compute</small><b>Processing live</b></span>
+          </div>
+        </div>
+
+        <div class="auth-stats">
+          <div class="auth-stat"><b>1</b><span>weather station</span></div>
+          <div class="auth-stat"><b>8</b><span>sensor channels</span></div>
+          <div class="auth-stat"><b>Live</b><span>data feed</span></div>
+        </div>
+        <p class="auth-foot">Illustrative product demo · no live hardware or secure account connection</p>
+      </div>
+
+      <div class="auth-formside">
+        <div class="auth-card">
+          <form id="loginForm" novalidate>
+            <p class="auth-card-eyebrow">DSTx Account</p>
+            <h2>Welcome back</h2>
+            <p class="auth-card-sub">Sign in to your monitoring workspace.</p>
+            <div class="auth-field">
+              <label for="loginEmail">Work email</label>
+              <input type="email" id="loginEmail" placeholder="you@farm.com" autocomplete="email" />
+            </div>
+            <div class="auth-field">
+              <label for="loginPass">Password</label>
+              <div class="auth-pass">
+                <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password" />
+                <button type="button" class="auth-show" data-show="loginPass">Show</button>
+              </div>
+            </div>
+            <div class="auth-row">
+              <label class="auth-check"><input type="checkbox" id="loginRemember" checked />Remember this browser</label>
+              <button type="button" class="auth-textlink" id="forgotBtn">Forgot password?</button>
+            </div>
+            <p class="auth-error" id="loginError" role="alert"></p>
+            <button type="submit" class="auth-submit">Sign in</button>
+            <div class="auth-or"><span>or</span></div>
+            <button type="button" class="auth-demo" id="demoBtn"><svg class="ic sm" viewBox="0 0 24 24"><path d="M12 21v-7"/><path d="M12 14c0-3.2-2.4-5-6-5 0 3.6 2 5.4 6 5Z"/><path d="M12 11.5c0-3 2.2-4.7 5.5-4.7 0 3.3-1.8 5-5.5 4.7Z"/></svg>Enter demo workspace</button>
+            <p class="auth-switch">New to DSTx?&nbsp;<button type="button" class="auth-textlink" id="toSignup">Create account</button></p>
+          </form>
+
+          <form id="signupForm" novalidate hidden>
+            <p class="auth-card-eyebrow">DSTx Account</p>
+            <h2>Create your account</h2>
+            <p class="auth-card-sub">Set up your monitoring workspace in a minute.</p>
+            <div class="auth-field">
+              <label for="suName">Full name</label>
+              <input type="text" id="suName" placeholder="Your name" autocomplete="name" />
+            </div>
+            <div class="auth-field">
+              <label for="suEmail">Work email</label>
+              <input type="email" id="suEmail" placeholder="you@farm.com" autocomplete="email" />
+            </div>
+            <div class="auth-field">
+              <label for="suPass">Password</label>
+              <div class="auth-pass">
+                <input type="password" id="suPass" placeholder="Minimum 8 characters" autocomplete="new-password" />
+                <button type="button" class="auth-show" data-show="suPass">Show</button>
+              </div>
+            </div>
+            <div class="auth-field">
+              <label for="suPass2">Confirm password</label>
+              <div class="auth-pass">
+                <input type="password" id="suPass2" placeholder="Repeat your password" autocomplete="new-password" />
+                <button type="button" class="auth-show" data-show="suPass2">Show</button>
+              </div>
+            </div>
+            <p class="auth-error" id="signupError" role="alert"></p>
+            <button type="submit" class="auth-submit">Create account</button>
+            <p class="auth-switch">Already have an account?&nbsp;<button type="button" class="auth-textlink" id="toLogin">Sign in</button></p>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <div class="app">
       <!-- Sidebar (desktop) -->
       <aside class="sidebar" id="drawer" aria-label="Navigasi utama">
@@ -21,9 +127,10 @@
         <button class="navlink" data-nav="perangkat"><svg class="ic" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 1 1 .7-8.93A5.5 5.5 0 0 1 18.3 11 3.75 3.75 0 0 1 17.5 18.5H7Z"/></svg>Perangkat</button>
         <button class="navlink" data-nav="unduh"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v10m0 0 4-4m-4 4-4-4"/><path d="M4 17.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-1.5"/><path d="M4 13.5 6.2 17h11.6L20 13.5"/></svg>Unduh</button>
         <button class="navlink" data-nav="pengaturan"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>Pengaturan</button>
+        <button class="navlink logout-btn"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Keluar</button>
         <div class="side-user">
-          <div class="avatar" aria-hidden="true">AM</div>
-          <div><b>Admin Mertani</b><span>Administrator</span></div>
+          <div class="avatar js-user-avatar" aria-hidden="true">AM</div>
+          <div><b class="js-user-name">Admin Mertani</b><span>Administrator</span></div>
         </div>
       </aside>
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -65,25 +172,6 @@
             </div>
             <div class="stage" id="stage" aria-label="Live readings, 1 device — geser untuk melihat reading lain"></div>
                         <div class="stage-dots" id="stageDots" role="group" aria-label="Posisi live reading"></div>
-
-            <div class="card three-card">
-              <div class="three-head">
-                <p class="eyebrow" style="margin-bottom:4px">Model Perangkat</p>
-                <h2>Stasiun Telemetri 3D — Sparing KIPI</h2>
-                <p>Model interaktif tiang sensor, panel surya, antena, dan tangki air. Ketinggian air mengikuti pembacaan Water Level terakhir (1,84 m) dan cincin sinyal berdenyut mengikuti kekuatan sinyal terakhir (−67 dBm). Seret model untuk memutarnya.</p>
-              </div>
-              <div class="three-wrap" id="threeWrap">
-                <canvas id="threeCanvas" aria-label="Model 3D stasiun telemetri Sparing KIPI"></canvas>
-                <div class="three-hint" aria-hidden="true">Seret untuk memutar model 3D</div>
-                <div class="three-fallback" id="threeFallback">Visualisasi 3D tidak dapat dimuat di perangkat ini.<br />Data sensor tetap tampil lengkap di bagian Live readings dan Detail Parameter.</div>
-              </div>
-              <div class="three-meta">
-                <span class="chip chip--online"><span class="dot"></span>Online</span>
-                <span class="chip chip--soft">Water Level · 1,84 m</span>
-                <span class="chip chip--soft">Signal · −67 dBm</span>
-                <span class="chip chip--soft">Battery · 86%</span>
-              </div>
-            </div>
 
             <div class="card map-card ref-map">
               <div class="map-head">
@@ -239,9 +327,10 @@
                 <h3>Profil</h3>
                 <p class="sub">Akun yang masuk di dashboard ini.</p>
                 <div style="display:flex;gap:13px;align-items:center;margin-top:10px">
-                  <div class="avatar" aria-hidden="true">AM</div>
-                  <div><b>Admin Mertani</b><br /><span style="color:var(--muted);font-size:13.5px">Administrator · Workspace Mertani</span></div>
+                  <div class="avatar js-user-avatar" aria-hidden="true">AM</div>
+                  <div><b class="js-user-name">Admin Mertani</b><br /><span style="color:var(--muted);font-size:13.5px">Administrator · Workspace Mertani</span></div>
                 </div>
+                <button class="btn logout-btn" style="margin-top:16px"><svg class="ic sm" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Keluar</button>
               </div>
               <div class="card">
                 <h3>Tampilan</h3>

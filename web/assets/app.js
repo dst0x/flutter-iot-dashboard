@@ -775,6 +775,84 @@
           signal: lastVal(sensor("signal"))
         });
       }
+      /* ---------- login / signup ---------- */
+      var authScreen=document.getElementById("authScreen");
+      var loginForm=document.getElementById("loginForm"), signupForm=document.getElementById("signupForm");
+      function showAuthForm(which){
+        loginForm.hidden=which!=="login";
+        signupForm.hidden=which!=="signup";
+      }
+      document.getElementById("toSignup").addEventListener("click",function(){ showAuthForm("signup"); });
+      document.getElementById("toLogin").addEventListener("click",function(){ showAuthForm("login"); });
+      var showBtns=document.querySelectorAll("[data-show]");
+      for(var si=0;si<showBtns.length;si++){
+        showBtns[si].addEventListener("click",function(){
+          var inp=document.getElementById(this.getAttribute("data-show"));
+          if(!inp) return;
+          var show=inp.type==="password";
+          inp.type=show?"text":"password";
+          this.textContent=show?"Hide":"Show";
+        });
+      }
+      function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+      function setUserName(name){
+        if(!name) return;
+        var names=document.querySelectorAll(".js-user-name");
+        for(var i=0;i<names.length;i++) names[i].textContent=name;
+        var parts=name.trim().split(/\s+/);
+        var ini=((parts[0]||"").charAt(0)+(parts[1]||"").charAt(0)).toUpperCase();
+        var avs=document.querySelectorAll(".js-user-avatar");
+        for(var j=0;j<avs.length;j++) avs[j].textContent=ini;
+      }
+      function enterApp(name,msg){
+        if(name) setUserName(name);
+        document.body.classList.remove("auth-lock");
+        authScreen.classList.add("hide");
+        setTimeout(function(){ authScreen.style.display="none"; },380);
+        try{ window.dispatchEvent(new Event("resize")); }catch(e){}
+        if(msg) setTimeout(function(){ toast(msg); },430);
+      }
+      loginForm.addEventListener("submit",function(e){
+        e.preventDefault();
+        var em=document.getElementById("loginEmail").value.trim();
+        var pw=document.getElementById("loginPass").value;
+        var err=document.getElementById("loginError");
+        if(!validEmail(em)){ err.textContent="Enter a valid work email address."; return; }
+        if(!pw){ err.textContent="Enter your password."; return; }
+        err.textContent="";
+        enterApp(null,"Selamat datang kembali di workspace Mertani");
+      });
+      signupForm.addEventListener("submit",function(e){
+        e.preventDefault();
+        var nm=document.getElementById("suName").value.trim();
+        var em=document.getElementById("suEmail").value.trim();
+        var p1=document.getElementById("suPass").value, p2=document.getElementById("suPass2").value;
+        var err=document.getElementById("signupError");
+        if(nm.length<2){ err.textContent="Enter your full name."; return; }
+        if(!validEmail(em)){ err.textContent="Enter a valid work email address."; return; }
+        if(p1.length<8){ err.textContent="Password must be at least 8 characters."; return; }
+        if(p1!==p2){ err.textContent="Passwords do not match."; return; }
+        err.textContent="";
+        enterApp(nm,"Akun dibuat — selamat datang, "+nm);
+      });
+      document.getElementById("demoBtn").addEventListener("click",function(){
+        enterApp(null,"Masuk sebagai demo — Admin Mertani");
+      });
+      document.getElementById("forgotBtn").addEventListener("click",function(){
+        toast("Reset kata sandi tidak tersedia di demo ini — gunakan Enter demo workspace");
+      });
+      var logoutBtns=document.querySelectorAll(".logout-btn");
+      for(var li=0;li<logoutBtns.length;li++){
+        logoutBtns[li].addEventListener("click",function(){
+          authScreen.style.display="";
+          authScreen.classList.remove("hide");
+          document.body.classList.add("auth-lock");
+          showAuthForm("login");
+          setDrawer(false);
+          window.scrollTo({top:0});
+          try{ window.dispatchEvent(new Event("resize")); }catch(e){}
+        });
+      }
       /* ---------- render awal ---------- */
       renderDevices();
       renderStage();
