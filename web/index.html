@@ -174,20 +174,23 @@
       .dev-marker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:#8A6D46;border:3px solid #fff;box-shadow:0 0 0 3px #2FBF71,0 0 0 10px rgba(47,191,113,.30),0 8px 16px rgba(21,36,47,.30);display:grid;place-items:center;color:#fff;z-index:4}
       .dev-marker svg{width:22px;height:22px}
       .dev-label{position:absolute;left:50%;top:calc(50% + 32px);transform:translateX(-50%);z-index:4;font-size:15px;font-weight:600;color:#54687A;text-shadow:0 1px 0 rgba(255,255,255,.9),0 0 6px rgba(255,255,255,.85),0 0 12px rgba(255,255,255,.7);letter-spacing:.01em}
-      .map-pop{position:absolute;z-index:9;left:50%;top:46%;transform:translate(-50%,-100%);width:min(342px,calc(100% - 36px));background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-lg);padding:16px 18px 13px;display:none;text-align:left}
+      .map-pop{position:absolute;z-index:9;left:50%;top:49%;transform:translate(-50%,-100%);width:min(268px,calc(100% - 64px));max-height:47%;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow-lg);padding:10px 12px 8px;display:none;text-align:left}
       .map-pop.open{display:block}
-      .map-pop::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%) rotate(45deg);width:17px;height:17px;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-      .map-pop h3{margin:0 28px 1px 0;font-size:17px;font-weight:800;letter-spacing:-.01em}
-      .map-pop .pop-id{color:var(--muted);font-size:13.5px;margin-bottom:9px}
-      .map-pop-x{position:absolute;top:9px;right:9px;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:var(--muted)}
+      .map-pop::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%) rotate(45deg);width:13px;height:13px;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+      .map-pop h3{margin:0 26px 0 0;font-size:15px;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+      .pop-headrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:3px}
+      .map-pop .pop-id{color:var(--muted);font-size:11.5px;margin:0}
+      .map-pop .chip{padding:2px 8px;font-size:11px;gap:5px}
+      .map-pop .chip .dot{width:6px;height:6px}
+      .map-pop-x{position:absolute;top:5px;right:5px;width:28px;height:28px;min-height:28px;display:grid;place-items:center;border-radius:7px;color:var(--muted)}
       .map-pop-x:hover{background:var(--surface-2);color:var(--ink)}
-      .pop-rows{border-top:1px solid var(--line);margin-top:12px;padding-top:6px}
-      .pop-row{display:flex;justify-content:space-between;gap:16px;padding:5px 0;font-size:13.5px}
-      .pop-row span{color:var(--muted)}
+      .pop-rows{border-top:1px solid var(--line);margin-top:7px;padding-top:3px}
+      .pop-row{display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:12px;line-height:1.35}
+      .pop-row span{color:var(--muted);flex:none}
       .pop-row b{font-weight:700;text-align:right}
-      .pop-actions{display:flex;gap:10px;margin-top:11px}
-      .pop-actions .btn{flex:1;justify-content:center;min-height:44px;padding:9px 10px}
-      .pop-note{margin:9px 0 0;font-size:12px;color:var(--muted);text-align:center}
+      .pop-actions{display:flex;gap:8px;margin-top:7px}
+      .pop-actions .btn{flex:1;justify-content:center;min-height:34px;padding:5px 8px;font-size:12.5px;border-radius:9px}
+      .pop-note{margin:5px 0 0;font-size:10.5px;line-height:1.35;color:var(--muted);text-align:center}
       #mapEl .pin{width:42px;height:42px;border-radius:50%;transform:none;background:#8A6D46;border:3px solid #fff;box-shadow:0 0 0 3px #2FBF71,0 0 0 10px rgba(47,191,113,.30),0 8px 16px rgba(21,36,47,.30);font-size:0;color:#fff}
       .map-ctl{position:absolute;z-index:6;width:47px;height:47px;border-radius:13px;background:var(--surface);border:1px solid rgba(223,231,236,.9);box-shadow:0 3px 12px rgba(21,36,47,.16);display:grid;place-items:center;color:#33475B}
       .map-ctl:hover{color:var(--ink)}
@@ -477,8 +480,10 @@
                 <div class="map-pop" id="mapPop" role="dialog" aria-label="Detail perangkat Sparing KIPI di peta">
                   <button class="map-pop-x" id="mapPopClose" aria-label="Tutup popup perangkat"><svg class="ic sm" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
                   <h3>Sparing KIPI</h3>
-                  <div class="pop-id mono">MTI-1OH9R4FCETTL</div>
-                  <span class="chip chip--online"><span class="dot"></span>Online</span>
+                  <div class="pop-headrow">
+                    <div class="pop-id mono">MTI-1OH9R4FCETTL</div>
+                    <span class="chip chip--online"><span class="dot"></span>Online</span>
+                  </div>
                   <div class="pop-rows">
                     <div class="pop-row"><span>Type</span><b>Water Quality — Sparing</b></div>
                     <div class="pop-row"><span>Site</span><b>Sukolilo · Surabaya, Jawa Timur</b></div>
